@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - Install App</title>
+    <link rel="icon" type="image/png" href="../assets/icon.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #12141d;
+            --bg-secondary: #1a1c29;
+            --brand-color: #00e6f6;
+            --text-normal: #dbdee1;
+            --text-muted: #949ba4;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: radial-gradient(circle at top right, rgba(0, 230, 246, 0.05), transparent),
+                              radial-gradient(circle at bottom left, rgba(0, 230, 246, 0.05), transparent);
+        }
+
+        .install-card {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 24px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 230, 246, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 230, 246, 0.3); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 40px rgba(0, 230, 246, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0, 230, 246, 0.3); }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .install-btn {
+            background: var(--brand-color);
+            color: #000;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 230, 246, 0.4);
+        }
+
+        .install-btn:active {
+            transform: scale(0.98);
+        }
+
+        .status-msg {
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--brand-color);
+            display: none;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .feature-item i {
+            margin-right: 6px;
+            color: var(--brand-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="install-card">
+        <img src="../assets/icon.png" alt="Nexus Icon" class="app-icon">
+        <h1>Nexus Mobile</h1>
+        <p>Experience the future of communication directly from your home screen with our premium native experience.</p>
+        
+        <div class="features">
+            <div class="feature-item"><i class="fa-solid fa-bolt"></i> Fast</div>
+            <div class="feature-item"><i class="fa-solid fa-wifi-slash"></i> Offline</div>
+            <div class="feature-item"><i class="fa-solid fa-mobile-screen"></i> Native</div>
+        </div>
+
+        <button id="installBtn" class="install-btn">
+            <i class="fa-solid fa-download"></i> Install Nexus
+        </button>
+        <p id="statusMsg" class="status-msg">Check your browser's address bar to install!</p>
+
+        <a href="../index.html" style="color: var(--text-muted); display: block; margin-top: 24px; text-decoration: none; font-size: 14px;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Browser
+        </a>
+    </div>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const statusMsg = document.getElementById('statusMsg');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            // Update UI notify the user they can add to home screen
+            installBtn.style.display = 'flex';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            } else {
+                statusMsg.style.display = 'block';
+            }
+        });
+
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('Nexus was installed');
+            statusMsg.innerText = "Successfully installed!";
+            statusMsg.style.display = 'block';
+            installBtn.style.display = 'none';
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('../sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
